@@ -972,12 +972,14 @@ def split_task(elements, func, args, duration, split_level, monitor):
         res = func(elems, *args, monitor=monitor)
         dt = time.time() - t0
         yield res
-        if dt > duration and i + 1 < n:
+        if dt > duration:
             # spawn subtasks for the rest and exit
             rest = []
             for elems in split_elems[i + 1:]:
                 rest.extend(elems)
-            yield split_task, rest, func, args, duration, split_level - i - 1
+            if rest:
+                yield (split_task, rest, func, args,
+                       duration, split_level - i - 1)
             break
 
 #                             start/stop workers                             #
