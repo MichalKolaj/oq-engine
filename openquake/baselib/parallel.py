@@ -974,7 +974,9 @@ def split_task(elements, func, args, duration, split_level, monitor):
         yield res
         if dt > duration and i + 1 < n:
             # spawn subtasks for the rest and exit
-            rest = sum(split_elems[i + 1:], [])
+            rest = []
+            for elems in split_elems[i + 1:]:
+                rest.extend(elems)
             yield split_task, rest, func, args, duration, split_level - i - 1
             break
 
