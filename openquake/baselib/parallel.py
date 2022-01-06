@@ -956,6 +956,9 @@ def split_task(elements, func, args, duration, split_level, monitor):
     :param split_level: number of splits to try (ex. 5)
     :yields: a partial result, 0 or more task objects
     """
+    if split_level <= 1:
+        yield func(elements, *args, monitor=monitor)
+        return
     n = len(elements)
     if split_level > n:  # too many splits
         split_level = n
@@ -969,12 +972,10 @@ def split_task(elements, func, args, duration, split_level, monitor):
         res = func(elems, *args, monitor=monitor)
         dt = time.time() - t0
         yield res
-        if dt > duration:
+        if dt > duration and i + 1 < n:
             # spawn subtasks for the rest and exit
-            for els in split_elems[i + 1:]:
-                ls = List(els)
-                ls.weight = sum(getattr(el, 'weight', 1.) for el in els)
-                yield (func, ls) + args
+            rest = sum(split_elems[i + 1:], [])
+            yield split_task, rest, func, args, duration, split_level - i - 1
             break
 
 #                             start/stop workers                             #
