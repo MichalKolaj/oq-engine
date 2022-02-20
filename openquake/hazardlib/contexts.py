@@ -134,13 +134,10 @@ def collapse_array(array, cfactor):
             out[a] = arr
         else:
             o = out[a]
-            occrates = arr['occurrence_rate']
-            occrate = occrates.sum()
-            # weighted average using the occrates as weights
             for name in names:
-                o[name] = (occrates * arr[name]).sum() / occrate
-            o['occurrence_rate'] = occrate
-    return out.view(numpy.recarray)
+                o[name] = arr[name].mean()
+            o['occurrence_rate'] *= len(arr)
+    return out
 
 
 def csdict(M, N, P, start, stop):
